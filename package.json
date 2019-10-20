@@ -1,0 +1,29 @@
+{
+  "name": "interactive-form-v1",
+  "version": "1.0.0",
+  "description": "A demonstration interactive form",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/julianjohannesen/interactive-form.git"
+  },
+  "keywords": [
+    "form",
+    "ui",
+    "js",
+    "html5",
+    "demo"
+  ],
+  "author": "Julian Johannesen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/julianjohannesen/interactive-form/issues"
+  },
+  "homepage": "https://github.com/julianjohannesen/interactive-form#readme",
+  "dependencies": {
+    "jquery": "^3.4.1"
+  }
+}
