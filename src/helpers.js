@@ -1,7 +1,3 @@
 export default function help() {
-    console.log('Updating print.js...');
-
-    // Some helper functions
-
-    
+    console.log('Updating helpers.js...');
 }

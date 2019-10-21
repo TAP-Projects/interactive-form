@@ -29,13 +29,9 @@ module.exports = {
       // Handle css
       {
         test: /\.css$/,
-        use: [{
-          loader: devMode
-            ?
-            'style-loader'
-            :
-            (MiniCssExtractPlugin.loader, 'css-loader')
-      }]
+        use: [
+          'style-loader', 'css-loader'
+        ]
       },
       // Handle images
       {
@@ -47,9 +43,13 @@ module.exports = {
       // Handle fonts
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/,
-        use: [
-          'file-loader',
-        ],
+        use: [{
+          loader: 'file-loader',
+          options: {
+            name: '[name].[ext]',
+            outputPath: 'fonts/'
+          }
+        }],
       },
       // Handle JS transpilation
       {
@@ -65,12 +65,12 @@ module.exports = {
       template: './index.html',
       filename: './index.html'
     }),
-    new MiniCssExtractPlugin({
-      filename: devMode ? '[name].css' : '[name].[hash].css',
-      chunkFilename: devMode ? '[id].css' : '[id].[hash].css',
-    }),
+    // new MiniCssExtractPlugin({
+    //   filename: devMode ? '[name].css' : '[name].[hash].css',
+    //   chunkFilename: devMode ? '[id].css' : '[id].[hash].css',
+    // }),
     new CleanWebpackPlugin()
-  ],
+  ]
 
   
 };
