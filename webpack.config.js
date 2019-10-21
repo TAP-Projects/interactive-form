@@ -1,5 +1,5 @@
 const path = require('path');
-const HTMLWebpackPlugin = require("html-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const devMode = process.env.NODE_ENV !== 'production';
@@ -34,7 +34,7 @@ module.exports = {
             ?
             'style-loader'
             :
-            MiniCssExtractPlugin.loader, 'css-loader'
+            (MiniCssExtractPlugin.loader, 'css-loader')
       }]
       },
       // Handle images
@@ -60,7 +60,7 @@ module.exports = {
     ],
   },
   plugins: [
-    new HTMLWebpackPlugin({
+    new HtmlWebpackPlugin({
       title: 'Output Management',
       template: './index.html',
       filename: './index.html'
