@@ -1,6 +1,8 @@
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HTMLWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const devMode = process.env.NODE_ENV !== 'production';
 
 module.exports = {
   mode: 'development',
@@ -14,22 +16,26 @@ module.exports = {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
   },
-  plugins: [
-    new CleanWebpackPlugin(),
-    new HtmlWebpackPlugin({
-      title: 'Output Management',
-    }),
-  ],
-
   module: {
     rules: [
+      // HTML
+      {
+        test: /.html$/,
+        use: [{
+          loader: "html-loader",
+          options: { minimize: true }
+        }]
+      },
       // Handle css
       {
         test: /\.css$/,
-        use: [
-          'style-loader',
-          'css-loader',
-        ],
+        use: [{
+          loader: devMode
+            ?
+            'style-loader'
+            :
+            MiniCssExtractPlugin.loader, 'css-loader'
+      }]
       },
       // Handle images
       {
@@ -46,10 +52,25 @@ module.exports = {
         ],
       },
       // Handle JS transpilation
-      { test: /\.js$/, 
-        exclude: /node_modules/, 
-        loader: "babel-loader" 
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: "babel-loader"
       }
     ],
   },
+  plugins: [
+    new HTMLWebpackPlugin({
+      title: 'Output Management',
+      template: './index.html',
+      filename: './index.html'
+    }),
+    new MiniCssExtractPlugin({
+      filename: devMode ? '[name].css' : '[name].[hash].css',
+      chunkFilename: devMode ? '[id].css' : '[id].[hash].css',
+    }),
+    new CleanWebpackPlugin()
+  ],
+
+  
 };
