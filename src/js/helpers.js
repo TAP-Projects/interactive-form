@@ -1,3 +1,3 @@
 export default function help() {
-    console.log('Updating helpers.js...');
+    console.log('help.js');
 }
