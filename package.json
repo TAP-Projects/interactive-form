@@ -7,6 +7,7 @@
     "start": "webpack-dev-server --open --hot",
     "watch": "webpack --watch",
     "build": "webpack --mode-production",
+    "deploy": "gh-pages -d dist",
     "test": "test"
   },
   "repository": {
@@ -27,6 +28,7 @@
   },
   "homepage": "https://github.com/julianjohannesen/interactive-form#readme",
   "dependencies": {
+    "gh-pages": "^2.1.1",
     "jquery": "^3.4.1",
     "normalize.css": "^8.0.1"
   },
