@@ -37,5 +37,19 @@ jobRole.change(function(){
 
 // Event listener and handler for design change
 design.change(function(){
-    colorOptions.show()
+    colorOptions.hide();
+    if($('select#design :selected').val() === 'js puns'){
+        const puns = colorOptions.filter(function(index,item){
+            const passes = $(this).text().indexOf('Puns') > 0;
+            return passes;
+        });
+        console.log(puns);
+        puns.show()
+    } else if($('select#design :selected').val() === 'heart js'){
+        const hearts = colorOptions.filter(function(index,item){
+            const passes = $(this).text().indexOf('I') > 0;
+            return passes;
+        });
+        hearts.show();  
+    }
 })
