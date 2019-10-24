@@ -56,25 +56,23 @@ design.change(function(){
 const activities = $('fieldset#activities');
 const inputs = $('fieldset#activities :checkbox');
 activities.change(function(e){
-    
-    // If this checkbox has a day and time, store it. Otherwise, exit the function. (the return false is not working)
-    if(e.target.dataset.dayAndTime === 'undefined') return false;
-    const targetTime = e.target.dataset.dayAndTime;
-
-    // If un-checking an item, re-enable any conflicting activities
+    // If this checkbox has a day and time, store it. Otherwise, exit the function.
+    const targetInput = e.target;
+    const targetTime = targetInput.dataset.dayAndTime;
     
     // Loop through the inputs
     inputs.each(function(index, item){
-        console.log(item.dataset.dayAndTime)
-        
-        // If this activity has a day and time, store it. Otherwise, exit the function. (the return false is not working)
-        if(item.dataset.dayAndTime === 'undefined') return false;
-        const thisTime = item.dataset.dayAndTime;
+        // If this activity has a day and time, store it. Otherwise, exit the function.
+        let thisTime = item.dataset.dayAndTime;
         
         // If our target's time is the same as this activity's time, then disable this activity
         if(targetTime === thisTime){
-            item.parentNode.style.color = 'red';
-            //$(this).prop("disabled", true)
+            // Use toggle to ensure that unchecking will re-enable conflicting events
+            $(item).parent().toggleClass('grey');
+            $(item).prop("disabled", function(index, value) { return !value; });
+            //!NOTE: If this is not included, the target will also be greyed out and disabled and I have no idea why.
+            $(targetInput).parent().removeClass('grey');
+            $(targetInput).prop("disabled", false);
         }
     });
     
