@@ -1,6 +1,4 @@
 import $ from 'jquery';
-//import help from './js/helpers.js';
-//import 'normalize.css';
 import './css/style.scss';
 
 // Some DOM reference
@@ -53,3 +51,31 @@ design.change(function(){
         hearts.show();  
     }
 })
+
+// Attach a change listener and handler to the activities fieldset and when an activity is checked, disable any conflicting activities 
+const activities = $('fieldset#activities');
+const inputs = $('fieldset#activities :checkbox');
+activities.change(function(e){
+    
+    // If this checkbox has a day and time, store it. Otherwise, exit the function. (the return false is not working)
+    if(e.target.dataset.dayAndTime === 'undefined') return false;
+    const targetTime = e.target.dataset.dayAndTime;
+
+    // If un-checking an item, re-enable any conflicting activities
+    
+    // Loop through the inputs
+    inputs.each(function(index, item){
+        console.log(item.dataset.dayAndTime)
+        
+        // If this activity has a day and time, store it. Otherwise, exit the function. (the return false is not working)
+        if(item.dataset.dayAndTime === 'undefined') return false;
+        const thisTime = item.dataset.dayAndTime;
+        
+        // If our target's time is the same as this activity's time, then disable this activity
+        if(targetTime === thisTime){
+            item.parentNode.style.color = 'red';
+            //$(this).prop("disabled", true)
+        }
+    });
+    
+});
