@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import validate from './js/validation'
 import './css/style.scss';
 
 // Some DOM reference
@@ -77,3 +78,6 @@ activities.change(function(e){
     });
     
 });
+
+
+validate();
