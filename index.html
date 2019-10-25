@@ -17,18 +17,18 @@
 		</header>
 
 		<form class="form" id="regForm" action="index.html" method="post">
-
+		<!-- Please note that for required fields I've coded a JS solution, but have also included the required attribute in order to assure graceful degradation -->
 			<fieldset class="fieldset" id="basicInfo">
 				<legend>Basic Info</legend>
 
 				<label for="name">Name:</label>
-				<input type="text" id="name" name="user-name" autofocus>
+				<input type="text" id="name" name="user-name" required aria-required="true" autofocus>
 
 				<label for="mail">Email:</label>
-				<input type="email" id="mail" name="user-email">
+				<input type="email" id="mail" name="user-email" required aria-required="true">
 
 				<label for="jobRole">Job Role</label>
-				<select id="jobRole" name="user-title">
+				<select id="jobRole" name="user-title" >
 					<option value="full-stack js developer">Full Stack JavaScript Developer</option>
 					<option value="front-end developer">Front End Developer</option>
 					<option value="back-end developer">Back End Developer</option>
@@ -126,23 +126,23 @@
 
 					<div class="col-6 col" id="cardNumberDiv">
 						<label for="cc-num">Card Number:</label>
-						<input id="cc-num" name="user-cc-num" type="text">
+						<input id="cc-num" name="user-cc-num" type="number" pattern="\d{13,16}">
 					</div>
 
 					<div class="col-3 col" id="zipDiv">
 						<label for="zip">Zip Code:</label>
-						<input id="zip" name="user-zip" type="text">
+						<input id="zip" name="user-zip" type="number" pattern="\d{5}">
 					</div>
 
 					<div class="col-3 col" id="cvvDiv">
 						<label for="cvv">CVV:</label>
-						<input id="cvv" name="user-cvv" type="text">
+						<input id="cvv" name="user-cvv" type="number" pattern="\d{3}">
 					</div>
 
 					<div id="expDate">
 
 						<label for="expMonth">Expiration Date:</label>
-						<select id="expMonth" name="user-exp-month">
+						<select id="expMonth" name="user-exp-month" required aria-required="true">
 							<option value="1">1 - January</option>
 							<option value="2">2 - February</option>
 							<option value="3">3 - March</option>
@@ -157,7 +157,7 @@
 							<option value="12">12 - December</option>
 						</select>
 						<label for="expYear">Expiration Year:</label>
-						<select id="expYear" name="user-exp-year">
+						<select id="expYear" name="user-exp-year" required aria-required="true">
 							<option value="2016">2019</option>
 							<option value="2017">2020</option>
 							<option value="2018">2021</option>
@@ -168,15 +168,11 @@
 				</div>
 
 				<div id="paypal" class="paypal">
-					<p>If you selected the PayPal option we'll take you to Paypal's site to set up your billing
-						information, when
-						you click “Register” below.</p>
+					<p>If you selected the PayPal option we'll take you to Paypal's site to set up your billing information, when you click “Register” below.</p>
 				</div>
 
 				<div id="bitcoin" class="bitcoin">
-					<p>If you selected the Bitcoin option we'll take you to the Coinbase site to set up your billing
-						information.
-						Due to the nature of exchanging Bitcoin, all Bitcoin transactions will be final.</p>
+					<p>If you selected the Bitcoin option we'll take you to the Coinbase site to set up your billing information. Due to the nature of exchanging Bitcoin, all Bitcoin transactions will be final.</p>
 				</div>
 
 			</fieldset>
