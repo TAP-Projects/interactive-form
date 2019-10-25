@@ -153,19 +153,11 @@ option {
 .grey {
 	color: grey !important;
 }
-  
-input:valid, select:valid {
-	border: 2px solid black;
-  }
 
-  input:invalid,
-  select:invalid {
-	box-shadow: 0 0 5px 1px red;
-  }
-  
-  input:focus:invalid {
-	box-shadow: none;
-  }
+.warning {
+	color: red;
+	margin-top: -0.5em;
+}
 
 /* ================================= 
   Helper Classes
