@@ -79,5 +79,28 @@ activities.change(function(e){
     
 });
 
+const payment = $('#payment');
+const paymentMethod = $('#paymentMethod')
+const paymentInfo = $('fieldset#payment > div')
+const cc = $('div#credit-card');
+const pp = $('div#paypal');
+const bc = $('div#bitcoin');
+pp.hide();
+bc.hide();
+paymentMethod.change(function(e){
+    // hide everything, if it's not already hidden (slideUp is not working as advertised)
+    if(paymentInfo.not(':hidden')) paymentInfo.hide();
+    
+    if($('option:selected', this).val() === 'Credit Card'){
+        cc.slideToggle();
+    }
+    else if($('option:selected', this).val() === 'PayPal'){
+        pp.slideToggle();
+    }
+    else if($('option:selected', this).val() === 'Bitcoin'){
+        bc.slideToggle();
+    }
+})
+
 
 validate();
