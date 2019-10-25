@@ -3,8 +3,11 @@ import './css/style.scss';
 
 // Some DOM reference
 const form = $('#regForm');
+const name = $('input#name');
+const email = $('input#mail');
 const jobRole = $('select#jobRole');
 const design = $('select#design');
+const color = $('select#color');
 
 form.submit(function(e){
     e.preventDefault();
@@ -31,14 +34,14 @@ jobRole.change(function(){
 // Event listener and handler for design change
 design.change(function(){
     colorOptions.hide();
-    if($('select#design :selected').val() === 'js puns'){
+    const design = $('select#design :selected');
+    if(design.val() === 'js puns'){
         const puns = colorOptions.filter(function(index,item){
             const passes = $(this).text().indexOf('Puns') > 0;
             return passes;
         });
-        console.log(puns);
         puns.show()
-    } else if($('select#design :selected').val() === 'heart js'){
+    } else if(design.val() === 'heart js'){
         const hearts = colorOptions.filter(function(index,item){
             const passes = $(this).text().indexOf('I') > 0;
             return passes;
@@ -73,7 +76,6 @@ activities.change(function(e){
     
 });
 
-const payment = $('#payment');
 const paymentMethod = $('#paymentMethod')
 const paymentInfo = $('fieldset#payment > div')
 const cc = $('div#credit-card');
@@ -82,16 +84,62 @@ const bc = $('div#bitcoin');
 pp.hide();
 bc.hide();
 paymentMethod.change(function(e){
-    // hide everything, if it's not already hidden (slideUp is not working as advertised)
+    // hide everything, if it's not already hidden 
+    // (slideUp is not working as advertised)
     if(paymentInfo.not(':hidden')) paymentInfo.hide();
-    
-    if($('option:selected', this).val() === 'Credit Card'){
-        cc.slideToggle();
+    const selected = $('option:selected', this);
+    if(selected.val() === 'Credit Card' || selected.text() === 'Select Payment Method'){
+        cc.toggle();
     }
-    else if($('option:selected', this).val() === 'PayPal'){
-        pp.slideToggle();
+    else if(selected.val() === 'PayPal'){
+        pp.toggle();
     }
-    else if($('option:selected', this).val() === 'Bitcoin'){
-        bc.slideToggle();
+    else if(selected.val() === 'Bitcoin'){
+        bc.toggle();
     }
 })
+
+// A simple name regex
+const nameRE = /[A-Za-z'-.]+(( )?([A-Za-z'-.]+)?)+/
+function checkName() {
+    if(name.val() === '' || !name.val().match(nameRE)){
+        if($('p.warning', name)) $('p.warning', name).remove()
+        name.addClass('warning')
+        $('<p class="warning" id="nameWarning">Please enter your name.</p>').insertAfter(name);
+        return false;
+    } else {
+        name.removeClass('warning');
+        if($('.warningWarning')) $('.warningWarning').remove();
+        return true;
+    }
+}
+name.on('input', checkName)
+
+// A simple email regex
+const emailRE = /[A-Za-z.-]+\@[A-Za-z]+\.[A-Za-z]{2,3}\.?([A-Za-z]{2,3})?/;
+function checkEmail() {
+    if(email.val() === '' || !email.val().match(emailRE)){
+        email.addClass('warning');
+        const theWarning = $('p.warning', email);
+        if(!theWarning.length){
+            $('<p class="warning" id="emailWarning">Please enter a valid email address.</p>').insertAfter(email);
+        } else {
+            theWarning.show();
+        }
+        return false;
+    } else {
+        email.removeClass('warning');
+        if($('emailWarning')) $('emailWarning').hide();
+        return true;
+    }
+}
+email.on('input', checkEmail);
+
+// Cannot submit unless this is true
+// $('#activities :checkbox:checked').length > 0
+
+//name.on('input', () => checkName(name));
+//email.on('input', () => checkEmail(email));
+
+//form.on('submit', () => checkAll(name, email));
+

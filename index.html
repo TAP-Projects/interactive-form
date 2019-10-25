@@ -16,16 +16,15 @@
 			<h1 class="title">Full Stack Conf</h1>
 		</header>
 
-		<form class="form" id="regForm" action="index.html" method="post">
-		<!-- Please note that for required fields I've coded a JS solution, but have also included the required attribute in order to assure graceful degradation -->
+		<form class="form" id="regForm" action="index.html" method="post" novalidate>
 			<fieldset class="fieldset" id="basicInfo">
 				<legend>Basic Info</legend>
 
 				<label for="name">Name:</label>
-				<input type="text" id="name" name="user-name" required aria-required="true" autofocus>
+				<input type="text" id="name" name="user-name" aria-required="true" autofocus>
 
 				<label for="mail">Email:</label>
-				<input type="email" id="mail" name="user-email" required aria-required="true">
+				<input type="email" id="mail" name="user-email" aria-required="true">
 
 				<label for="jobRole">Job Role</label>
 				<select id="jobRole" name="user-title" >
@@ -115,9 +114,10 @@
 				<legend>Payment Info</legend>
 
 				<label for="paymentMethod">I'm going to pay with:</label>
-				<select id="paymentMethod" name="user-payment">
-					<option value="select method" disabled>Select Payment Method</option>
-					<option value="Credit Card" selected>Credit Card</option>
+				<select id="paymentMethod" name="user-payment" aria-required="true">
+					<!-- When using the required attribute with a select element, the first option element must either no value or no text content -->
+					<option>Select Payment Method</option>
+					<option value="Credit Card">Credit Card</option>
 					<option value="PayPal">PayPal</option>
 					<option value="Bitcoin">Bitcoin</option>
 				</select>
@@ -126,23 +126,23 @@
 
 					<div class="col-6 col" id="cardNumberDiv">
 						<label for="cc-num">Card Number:</label>
-						<input id="cc-num" name="user-cc-num" type="number" pattern="\d{13,16}">
+						<input id="cc-num" name="user-cc-num" type="text">
 					</div>
 
 					<div class="col-3 col" id="zipDiv">
 						<label for="zip">Zip Code:</label>
-						<input id="zip" name="user-zip" type="number" pattern="\d{5}">
+						<input id="zip" name="user-zip" type="text" >
 					</div>
 
 					<div class="col-3 col" id="cvvDiv">
 						<label for="cvv">CVV:</label>
-						<input id="cvv" name="user-cvv" type="number" pattern="\d{3}">
+						<input id="cvv" name="user-cvv" type="text" >
 					</div>
 
 					<div id="expDate">
 
 						<label for="expMonth">Expiration Date:</label>
-						<select id="expMonth" name="user-exp-month" required aria-required="true">
+						<select id="expMonth" name="user-exp-month" aria-required="true">
 							<option value="1">1 - January</option>
 							<option value="2">2 - February</option>
 							<option value="3">3 - March</option>
@@ -157,7 +157,7 @@
 							<option value="12">12 - December</option>
 						</select>
 						<label for="expYear">Expiration Year:</label>
-						<select id="expYear" name="user-exp-year" required aria-required="true">
+						<select id="expYear" name="user-exp-year" aria-required="true">
 							<option value="2016">2019</option>
 							<option value="2017">2020</option>
 							<option value="2018">2021</option>

@@ -128,6 +128,16 @@ option {
 	font-family: 'roboto', sans-serif;
 }
 
+.grey {
+	color: grey !important;
+}
+
+.warning {
+	color: red;
+	font-weight: bold;
+	margin-top: -0.5em;
+}
+
 /* ================================= 
   Page Styles
 ==================================== */
@@ -150,9 +160,7 @@ option {
 	margin-top: 1.25em;
 }
 
-.grey {
-	color: grey !important;
-}
+
 
 /* ================================= 
   Helper Classes
