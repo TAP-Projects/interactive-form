@@ -17,7 +17,7 @@
 		</header>
 
 		<form class="form" id="regForm" action="index.html" method="post">
-		<!-- Please note that for required fields I've coded a JS solution, but have also included the required attribute in order to assure graceful degradation -->
+		<!-- Please note that a JavaScript solution is provided for each validation requirement, but that, in order to assure graceful degradation, I have also used the Constraint Validation API. For example, required fields have the 'required' attribute. -->
 			<fieldset class="fieldset" id="basicInfo">
 				<legend>Basic Info</legend>
 
@@ -115,8 +115,9 @@
 				<legend>Payment Info</legend>
 
 				<label for="paymentMethod">I'm going to pay with:</label>
-				<select id="paymentMethod" name="user-payment">
-					<option value="select method">Select Payment Method</option>
+				<select id="paymentMethod" name="user-payment" required aria-required="true">
+					<!-- When using the required attribute with a select element, the first option element must either no value or no text content -->
+					<option>Select Payment Method</option>
 					<option value="Credit Card">Credit Card</option>
 					<option value="PayPal">PayPal</option>
 					<option value="Bitcoin">Bitcoin</option>
@@ -126,17 +127,17 @@
 
 					<div class="col-6 col" id="cardNumberDiv">
 						<label for="cc-num">Card Number:</label>
-						<input id="cc-num" name="user-cc-num" type="number" pattern="\d{13,16}">
+						<input id="cc-num" name="user-cc-num" type="text" pattern="\d{13,16}">
 					</div>
 
 					<div class="col-3 col" id="zipDiv">
 						<label for="zip">Zip Code:</label>
-						<input id="zip" name="user-zip" type="number" pattern="\d{5}">
+						<input id="zip" name="user-zip" type="text" pattern="\d{5}">
 					</div>
 
 					<div class="col-3 col" id="cvvDiv">
 						<label for="cvv">CVV:</label>
-						<input id="cvv" name="user-cvv" type="number" pattern="\d{3}">
+						<input id="cvv" name="user-cvv" type="text" pattern="\d{3}">
 					</div>
 
 					<div id="expDate">
