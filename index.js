@@ -1,6 +1,3 @@
-import $ from 'jquery';
-import './css/style.scss';
-
 // Some DOM reference
 const form = $('#regForm');
 const name = $('input#name');
