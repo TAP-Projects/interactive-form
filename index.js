@@ -8,6 +8,9 @@ const color = $('select#color');
 const activities = $('fieldset#activities');
 const activitiesInputs = $('fieldset#activities :checkbox');
 
+// Cost
+let totalCost = 0;
+
 form.submit(function(e){
     e.preventDefault();
 })
@@ -49,29 +52,46 @@ design.change(function(){
     }
 })
 
-// Attach a change listener and handler to the activities fieldset and when an activity is checked, disable any conflicting activities 
+// Attach a change listener and handler to the activities fieldset and when an activity is checked, disable any conflicting activities. Also add the acitivity's cost to the total cost or remove it as appropriate.
 activities.change(function(e){
-    // If this checkbox has a day and time, store it. Otherwise, exit the function.
+
+    // Grab the event's day/time and cost
     const targetInput = e.target;
     const targetTime = targetInput.dataset.dayAndTime;
-    
-    // Loop through the inputs
+    const targetCost = parseInt(targetInput.dataset.cost.substring(1))                                  ;
+
+    // Loop through the inputs and check for conflicting events, disabling them or re-enabling them
     activitiesInputs.each(function(index, item){
-        // If this activity has a day and time, store it. Otherwise, exit the function.
+        // Grag the current event's date/time
         let thisTime = item.dataset.dayAndTime;
         
-        // If our target's time is the same as this activity's time, then disable this activity
+        // If there's a conflict, i.e. if our target's time is the same as this activity's time, then disable the current activity (not the target activity)
         if(targetTime === thisTime){
             // Use toggle to ensure that unchecking will re-enable conflicting events
             $(item).parent().toggleClass('grey');
+            // For properties like 'disabled' we use prop(). Here we're basically toggling the properties value. If it's disabled, enable it. If it's enabled, disable it.
             $(item).prop("disabled", function(index, value) { return !value; });
             //!NOTE: If this is not included, the target will also be greyed out and disabled and I have no idea why.
             $(targetInput).parent().removeClass('grey');
             $(targetInput).prop("disabled", false);
         }
     });
+
+    // For any item that's checked, add it's cost to the total cost
+    if($(targetInput).is(':checked')){
+        totalCost += targetCost;
+    // If after checking the checkbox, the checkbox is unchecked, then we want to remove the cost of this activity from the running total.
+    } else {
+        totalCost -= targetCost;
+    }
+
+    $('.totalCost').text(`Total cost: ${totalCost}`).show();
+    console.log(totalCost);
     
 });
+
+const conCost = `<p class="totalCost">Total cost: $${totalCost}.</p>`;
+$(conCost).insertAfter(activities).hide();
 
 const paymentMethod = $('#paymentMethod')
 const paymentInfo = $('fieldset#payment > div')
@@ -96,33 +116,31 @@ paymentMethod.change(function(e){
     }
 })
 
-// Add a warning message when appropriate
-function checkElem(regex, elem){
-    // Remove the warning, so as to avoid duplicate warning messages
+// Create and insert a warning message
+function addWarning(elem){
+    elem.addClass('warning');
+    const warningText = `<p class="warning">The ${elem[0].name} field requires a valid ${elem[0].name}.</p>`
+    $(warningText).insertAfter(elem);
+}
+
+// Remove the warning, so as to avoid duplicate warning messages
+function removeWarning(elem){
     const warningP = '#' + elem[0].id + ' ~ p.warning';
     if($(warningP)) {
         $(warningP).remove();
     }
     elem.removeClass('warning');
+}
 
-    // Create and insert a warning message
-    function addWarning(){
-        elem.addClass('warning');
-        const warningText = `<p class="warning">The ${elem[0].name} field requires a valid ${elem[0].name}.</p>`
-        $(warningText).insertAfter(elem);
-    }
-
-    // If the elem is an input element, check it's value before adding a warning
-    if(elem[0].nodeName === 'INPUT'){
-        if(elem.val() === '' || !elem.val().match(regex)){
-            addWarning();
-            return false;
-        } 
-    // Otherwise just add the warning
-    } else {
-        addWarning();
-    }
-    return true;
+// Add a warning message when appropriate
+function checkElem(regex, elem){
+    // Prevent duplicate warnings
+    removeWarning(elem);
+    // If the elem has no value or a nonmatching value
+    if(elem.val() === '' || !elem.val().match(regex)){
+        // then add the warning
+        addWarning(elem);
+    } 
 }
 
 // A simple name regex of my own devising
@@ -137,9 +155,10 @@ name.on('input blur', () => checkElem(nameRE, name))
 email.on('input blur', () => checkElem(emailRE, email));
 // Make sure that at least one of the conference events has been chosen
 activities.on('focusout', (e) => {
-    if($('#activities :checkbox:checked').length <= 0){
-        checkElem(null, activities);
-    };
+    const checkedBoxes = $('fieldset#activities :checkbox:checked').length;
+    removeWarning(activities);
+    if(!checkedBoxes){
+        addWarning(activities);
+    }
 } );
-// Remove the warning on the activities field once an activity is chosen
-activitiesInputs.on('input', (e) => checkElem(null, activities))
+
