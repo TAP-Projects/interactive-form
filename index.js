@@ -19,7 +19,7 @@ jobRole.after(elem);
 const colorOptions = $('select#color option')
 colorOptions.hide();
 
-// Event listener and handler for job role change
+// Event listener and handler for job-role change
 jobRole.change(function(){
     const otherRole = $('#otherRole');
     if($('select#jobRole :selected').val() === 'other'){
@@ -97,35 +97,30 @@ paymentMethod.change(function(e){
     }
 })
 
-// A simple name regex
-const nameRE = /[A-Za-z'-.]+(( )?([A-Za-z'-.]+)?)+/
-function checkName() {
-    if(name.val() === '' || !name.val().match(nameRE)){
-        name.addClass('warning')
-        $('<p class="warning" id="nameWarning">Please enter your name.</p>').insertAfter(name);
+function checkElem(regex, elem){
+    if(elem.val() === '' || !elem.val().match(regex)){
+        elem.addClass('warning')
+        $('<p class="warning">Please complete this field.</p>').insertAfter(elem);
         return false;
     } else {
-        name.removeClass('warning');
-        if($('.warningWarning')) $('.warningWarning').remove();
+        elem.removeClass('warning');
+        //NOTE: This is the part that doesn't seem to be working right now
+        if($('.warning')) {
+            $('.warning').remove();
+        }
         return true;
     }
 }
-name.on('input', checkName)
+
+
+// A simple name regex
+const nameRE = /[A-Za-z'-.]+(( )?([A-Za-z'-.]+)?)+/;
+name.on('input', () => checkElem(nameRE, name))
 
 // A simple email regex
 const emailRE = /[A-Za-z.-]+\@[A-Za-z]+\.[A-Za-z]{2,3}\.?([A-Za-z]{2,3})?/;
-function checkEmail() {
-    if(email.val() === '' || !email.val().match(emailRE)){
-        email.addClass('warning');
-        $('<p class="warning" id="emailWarning">Please enter a valid email address.</p>').insertAfter(email);
-        return false;
-    } else {
-        email.removeClass('warning');
-        if($('emailWarning')) $('emailWarning').remove();
-        return true;
-    }
-}
-email.on('input', checkEmail);
+email.on('input', () => checkElem(emailRE, email));
+
 
 // Cannot submit unless this is true
 // $('#activities :checkbox:checked').length > 0
