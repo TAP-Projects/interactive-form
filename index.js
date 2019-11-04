@@ -3,7 +3,6 @@ const form = $('#regForm');
 const name = $('input#name');
 const email = $('input#mail');
 const jobRole = $('select#jobRole');
-const size = $('select#size');
 const design = $('select#design');
 const color = $('select#color');
 
