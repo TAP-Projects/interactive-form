@@ -2,7 +2,6 @@
 Base Element Styles
 ==================================== */
 
-@import url('../../node_modules/normalize.css/normalize.css');
 @import url('https://fonts.googleapis.com/css?family=Nunito|Roboto+Mono');
 
 html * {

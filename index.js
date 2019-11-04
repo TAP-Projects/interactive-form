@@ -5,6 +5,8 @@ const email = $('input#mail');
 const jobRole = $('select#jobRole');
 const design = $('select#design');
 const color = $('select#color');
+const activities = $('fieldset#activities');
+const activitiesInputs = $('fieldset#activities :checkbox');
 
 form.submit(function(e){
     e.preventDefault();
@@ -48,15 +50,13 @@ design.change(function(){
 })
 
 // Attach a change listener and handler to the activities fieldset and when an activity is checked, disable any conflicting activities 
-const activities = $('fieldset#activities');
-const inputs = $('fieldset#activities :checkbox');
 activities.change(function(e){
     // If this checkbox has a day and time, store it. Otherwise, exit the function.
     const targetInput = e.target;
     const targetTime = targetInput.dataset.dayAndTime;
     
     // Loop through the inputs
-    inputs.each(function(index, item){
+    activitiesInputs.each(function(index, item){
         // If this activity has a day and time, store it. Otherwise, exit the function.
         let thisTime = item.dataset.dayAndTime;
         
@@ -96,36 +96,50 @@ paymentMethod.change(function(e){
     }
 })
 
+// Add a warning message when appropriate
 function checkElem(regex, elem){
-    if(elem.val() === '' || !elem.val().match(regex)){
-        elem.addClass('warning')
-        $('<p class="warning">Please complete this field.</p>').insertAfter(elem);
-        return false;
-    } else {
-        elem.removeClass('warning');
-        //NOTE: This is the part that doesn't seem to be working right now
-        if($('.warning')) {
-            $('.warning').remove();
-        }
-        return true;
+    // Remove the warning, so as to avoid duplicate warning messages
+    const warningP = '#' + elem[0].id + ' ~ p.warning';
+    if($(warningP)) {
+        $(warningP).remove();
     }
+    elem.removeClass('warning');
+
+    // Create and insert a warning message
+    function addWarning(){
+        elem.addClass('warning');
+        const warningText = `<p class="warning">The ${elem[0].name} field requires a valid ${elem[0].name}.</p>`
+        $(warningText).insertAfter(elem);
+    }
+
+    // If the elem is an input element, check it's value before adding a warning
+    if(elem[0].nodeName === 'INPUT'){
+        if(elem.val() === '' || !elem.val().match(regex)){
+            addWarning();
+            return false;
+        } 
+    // Otherwise just add the warning
+    } else {
+        addWarning();
+    }
+    return true;
 }
 
-
-// A simple name regex
+// A simple name regex of my own devising
 const nameRE = /[A-Za-z'-.]+(( )?([A-Za-z'-.]+)?)+/;
-name.on('input', () => checkElem(nameRE, name))
 
-// A simple email regex
+// A simple email regex of my own devising
 const emailRE = /[A-Za-z.-]+\@[A-Za-z]+\.[A-Za-z]{2,3}\.?([A-Za-z]{2,3})?/;
-email.on('input', () => checkElem(emailRE, email));
 
-
-// Cannot submit unless this is true
-// $('#activities :checkbox:checked').length > 0
-
-//name.on('input', () => checkName(name));
-//email.on('input', () => checkEmail(email));
-
-//form.on('submit', () => checkAll(name, email));
-
+// Make sure a valid name has been entered
+name.on('input blur', () => checkElem(nameRE, name))
+// Make sure a valid email has been entered
+email.on('input blur', () => checkElem(emailRE, email));
+// Make sure that at least one of the conference events has been chosen
+activities.on('focusout', (e) => {
+    if($('#activities :checkbox:checked').length <= 0){
+        checkElem(null, activities);
+    };
+} );
+// Remove the warning on the activities field once an activity is chosen
+activitiesInputs.on('input', (e) => checkElem(null, activities))
