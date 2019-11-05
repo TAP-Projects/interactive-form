@@ -120,7 +120,7 @@ paymentMethod.change(function(e){
 // Create and insert a warning message
 function addWarning(elem){
     elem.addClass('warning');
-    const elemText = elem[0].title ? elem[0].title : elem[0].name;
+    const elemText = elem.attr('title') ? elem.attr('title') : elem.attr('name');
     const warningText = `<p class="warning">The ${elemText} field requires a valid ${elemText}.</p>`
     $(warningText).insertAfter(elem);
 }
@@ -138,7 +138,7 @@ function removeWarning(elem){
 function checkElem(regex, elem){
     // Prevent duplicate warnings
     removeWarning(elem);
-    // If the elem has no value or a nonmatching value
+    // If the elem has no value or a non-matching value
     if(elem.val() === '' || !elem.val().match(regex)){
         // then add the warning
         addWarning(elem);
@@ -152,11 +152,11 @@ const regExps = {
     // See https://emailregex.com/ and https://www.ietf.org/rfc/rfc5322.txt
     email: /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/,
     // A simple credit card regex
-    num: /\d[13,16]/,
+    num: /^\d{13,16}$/,
     // A simple zip regex
-    zip: /\d[5]/,
+    zip: /^\d{5}$/,
     // A simple ccv regex
-    cvv: /\d[3]/
+    cvv: /^\d{3}$/
 }
 
 // Make sure a valid name and email have been entered
@@ -183,7 +183,7 @@ paymentMethod.on('input focusout', (e) => {
     }
 })
 
-cc.on('change focusout', (e) => {
+cc.on('input change focusout', (e) => {
     if(paymentMethod.val() === 'Credit Card'){
         checkElem(regExps[e.target.id], $(e.target));
     }
