@@ -17,6 +17,7 @@ let totalCost = 0;
 
 form.submit(function(e){
     e.preventDefault();
+    
 })
 
 // Create the "Other Role" input and hide it
@@ -97,6 +98,7 @@ activities.change(function(e){
 const conCost = `<p class="totalCost">Total cost: $${totalCost}.</p>`;
 $(conCost).insertAfter(activities).hide();
 
+cc.hide();
 pp.hide();
 bc.hide();
 paymentMethod.change(function(e){
@@ -104,7 +106,7 @@ paymentMethod.change(function(e){
     // (slideUp is not working as advertised)
     if(paymentInfo.not(':hidden')) paymentInfo.hide();
     const selected = $('option:selected', this);
-    if(selected.val() === 'Credit Card' || selected.text() === 'Select Payment Method'){
+    if(selected.val() === 'Credit Card'){
         cc.toggle();
     }
     else if(selected.val() === 'PayPal'){
@@ -158,7 +160,7 @@ const regExps = {
 }
 
 // Make sure a valid name and email have been entered
-basic.on('input blur', (e) => {
+basic.on('input focusout', (e) => {
     if(e.target.type === 'text' || e.target.type === 'email'){
         checkElem(regExps[e.target.id], $(e.target))
     }
@@ -173,7 +175,15 @@ activities.on('focusout', (e) => {
     }
 } );
 
-cc.on('change', (e) => {
+paymentMethod.on('input focusout', (e) => {
+    removeWarning(paymentMethod);
+    console.log(e);
+    if(e.target.selectedOptions[0].textContent === 'Select Payment Method'){
+        addWarning(paymentMethod);
+    }
+})
+
+cc.on('change focusout', (e) => {
     if(paymentMethod.val() === 'Credit Card'){
         checkElem(regExps[e.target.id], $(e.target));
     }

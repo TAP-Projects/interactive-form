@@ -17,7 +17,7 @@
 			<h1 class="title">Full Stack Conf</h1>
 		</header>
 
-		<form class="form" id="regForm" action="index.html" method="post" novalidate>
+		<form class="form" id="regForm" action="index.html" method="post" novalidate title="registration form">
 			<fieldset class="fieldset" id="basicInfo">
 				<legend>Basic Info</legend>
 
@@ -115,7 +115,7 @@
 				<legend>Payment Info</legend>
 
 				<label for="paymentMethod">I'm going to pay with:</label>
-				<select id="paymentMethod" name="user-payment" aria-required="true">
+				<select id="paymentMethod" name="user-payment" aria-required="true" title="payment type">
 					<!-- When using the required attribute with a select element, the first option element must either no value or no text content -->
 					<option>Select Payment Method</option>
 					<option value="Credit Card">Credit Card</option>
@@ -127,7 +127,7 @@
 
 					<div class="col-6 col" id="cardNumberDiv">
 						<label for="cc-num">Card Number:</label>
-						<input id="num" name="user-cc-num" type="text" title="credit card number">
+						<input id="num" name="user-cc-num" type="text" title="credit card number (without dashes or spaces)">
 					</div>
 
 					<div class="col-3 col" id="zipDiv">
