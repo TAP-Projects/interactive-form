@@ -1,12 +1,16 @@
 // Some DOM reference
 const form = $('#regForm');
-const name = $('input#name');
-const email = $('input#mail');
+const basic = $('#basicInfo');
 const jobRole = $('select#jobRole');
 const design = $('select#design');
 const color = $('select#color');
 const activities = $('fieldset#activities');
 const activitiesInputs = $('fieldset#activities :checkbox');
+const paymentMethod = $('#paymentMethod');
+const paymentInfo = $('fieldset#payment > div');
+const cc = $('div#credit-card');
+const pp = $('div#paypal');
+const bc = $('div#bitcoin');
 
 // Cost
 let totalCost = 0;
@@ -93,11 +97,6 @@ activities.change(function(e){
 const conCost = `<p class="totalCost">Total cost: $${totalCost}.</p>`;
 $(conCost).insertAfter(activities).hide();
 
-const paymentMethod = $('#paymentMethod')
-const paymentInfo = $('fieldset#payment > div')
-const cc = $('div#credit-card');
-const pp = $('div#paypal');
-const bc = $('div#bitcoin');
 pp.hide();
 bc.hide();
 paymentMethod.change(function(e){
@@ -119,13 +118,14 @@ paymentMethod.change(function(e){
 // Create and insert a warning message
 function addWarning(elem){
     elem.addClass('warning');
-    const warningText = `<p class="warning">The ${elem[0].name} field requires a valid ${elem[0].name}.</p>`
+    const elemText = elem[0].title ? elem[0].title : elem[0].name;
+    const warningText = `<p class="warning">The ${elemText} field requires a valid ${elemText}.</p>`
     $(warningText).insertAfter(elem);
 }
 
 // Remove the warning, so as to avoid duplicate warning messages
 function removeWarning(elem){
-    const warningP = '#' + elem[0].id + ' ~ p.warning';
+    const warningP = '#' + elem.attr('id') + ' ~ p.warning';
     if($(warningP)) {
         $(warningP).remove();
     }
@@ -143,16 +143,27 @@ function checkElem(regex, elem){
     } 
 }
 
-// A simple name regex of my own devising
-const nameRE = /[A-Za-z'-.]+(( )?([A-Za-z'-.]+)?)+/;
+// Input validation event handlers
+const regExps = {
+    // A simple name regex of my own devising
+    name: /^([A-Za-z]+[.'-]?)+(( )?([A-Za-z]+[.'-]?))*/,
+    // See https://emailregex.com/ and https://www.ietf.org/rfc/rfc5322.txt
+    email: /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/,
+    // A simple credit card regex
+    num: /\d[13,16]/,
+    // A simple zip regex
+    zip: /\d[5]/,
+    // A simple ccv regex
+    cvv: /\d[3]/
+}
 
-// A simple email regex of my own devising
-const emailRE = /[A-Za-z.-]+\@[A-Za-z]+\.[A-Za-z]{2,3}\.?([A-Za-z]{2,3})?/;
+// Make sure a valid name and email have been entered
+basic.on('input blur', (e) => {
+    if(e.target.type === 'text' || e.target.type === 'email'){
+        checkElem(regExps[e.target.id], $(e.target))
+    }
+});
 
-// Make sure a valid name has been entered
-name.on('input blur', () => checkElem(nameRE, name))
-// Make sure a valid email has been entered
-email.on('input blur', () => checkElem(emailRE, email));
 // Make sure that at least one of the conference events has been chosen
 activities.on('focusout', (e) => {
     const checkedBoxes = $('fieldset#activities :checkbox:checked').length;
@@ -161,4 +172,10 @@ activities.on('focusout', (e) => {
         addWarning(activities);
     }
 } );
+
+cc.on('change', (e) => {
+    if(paymentMethod.val() === 'Credit Card'){
+        checkElem(regExps[e.target.id], $(e.target));
+    }
+});
 
