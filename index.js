@@ -15,10 +15,8 @@ const bc = $('div#bitcoin');
 // Cost
 let totalCost = 0;
 
-form.submit(function(e){
-    e.preventDefault();
-    
-})
+// Error flag
+let hasError = false;
 
 // Create the "Other Role" input and hide it
 const elem = $('<input id="otherRole" type="text" placeholder="Your Job Role" />').hide();
@@ -57,7 +55,7 @@ design.change(function(){
     }
 })
 
-// Attach a change listener and handler to the activities fieldset and when an activity is checked, disable any conflicting activities. Also add the acitivity's cost to the total cost or remove it as appropriate.
+// Attach a change listener and handler to the activities fieldset and when an activity is checked, disable any conflicting activities. Also add the activity's cost to the total cost or remove it as appropriate.
 activities.change(function(e){
 
     // Grab the event's day/time and cost
@@ -90,8 +88,7 @@ activities.change(function(e){
         totalCost -= targetCost;
     }
 
-    $('.totalCost').text(`Total cost: ${totalCost}`).show();
-    console.log(totalCost);
+    $('.totalCost').text(`Total cost: \$${totalCost}`).show();
     
 });
 
@@ -118,15 +115,19 @@ paymentMethod.change(function(e){
 })
 
 // Create and insert a warning message
-function addWarning(elem){
+function addWarning(elem, warningText){
+    hasError = true;
     elem.addClass('warning');
-    const elemText = elem.attr('title') ? elem.attr('title') : elem.attr('name');
-    const warningText = `<p class="warning">The ${elemText} field requires a valid ${elemText}.</p>`
+    if(!warningText){
+        const elemText = elem.attr('title') ? elem.attr('title') : elem.attr('name');
+        warningText = `<p class="warning">The ${elemText} field requires a valid ${elemText}.</p>`
+    }
     $(warningText).insertAfter(elem);
 }
 
 // Remove the warning, so as to avoid duplicate warning messages
 function removeWarning(elem){
+    hasError = false;
     const warningP = '#' + elem.attr('id') + ' ~ p.warning';
     if($(warningP)) {
         $(warningP).remove();
@@ -142,10 +143,12 @@ function checkElem(regex, elem){
     if(elem.val() === '' || !elem.val().match(regex)){
         // then add the warning
         addWarning(elem);
+        return true;
     } 
+    return false;
 }
 
-// Input validation event handlers
+// Regular expressions for input validation event handler
 const regExps = {
     // A simple name regex of my own devising
     name: /^([A-Za-z]+[.'-]?)+(( )?([A-Za-z]+[.'-]?))*/,
@@ -168,24 +171,70 @@ basic.on('input focusout', (e) => {
 
 // Make sure that at least one of the conference events has been chosen
 activities.on('focusout', (e) => {
+    // This is sort of redundant given that I already have 'activities', but I wanted to make everything as 'pure' as possible
+    const acts = $(e.target).parent().parent();
     const checkedBoxes = $('fieldset#activities :checkbox:checked').length;
-    removeWarning(activities);
+    removeWarning(acts);
     if(!checkedBoxes){
-        addWarning(activities);
+        addWarning(acts);
     }
 } );
 
 paymentMethod.on('input focusout', (e) => {
-    removeWarning(paymentMethod);
-    console.log(e);
-    if(e.target.selectedOptions[0].textContent === 'Select Payment Method'){
-        addWarning(paymentMethod);
+    const target = $(e.target);
+    const selected = '#'+e.target.id+' option:selected';
+    removeWarning(target);
+    if($(selected).text() === 'Select Payment Method'){
+        addWarning(target);
     }
 })
 
-cc.on('input change focusout', (e) => {
+cc.on('input focusout', (e) => {
     if(paymentMethod.val() === 'Credit Card'){
         checkElem(regExps[e.target.id], $(e.target));
     }
 });
 
+
+// Handle the form submit event
+form.submit(function(e){
+    e.preventDefault();
+
+    // Remove any previous warnings to avoid duplicate warnings
+    removeWarning(form);
+    
+    const checkedBoxes = $('fieldset#activities :checkbox:checked').length;
+    const ccYes = paymentMethod.val() === 'Credit Card' ? true : false;
+
+    if(
+        // A valid name must be present
+        checkElem(regExps['name'], $('#name'))
+        ||
+        // A valid email must be present
+        checkElem(regExps['email'], $('#email'))
+        ||
+        // A conference activity must be selected
+        !checkedBoxes
+        ||
+        // A payment method must be selected
+        ($('#paymentMethod option:selected').text() === 'Select Payment Method')
+        ||
+        // If the payment method is credit card, valid credit card details must be present
+        (ccYes && checkElem(regExps['num'], $('#num')))
+        ||
+        (ccYes && checkElem(regExps['zip'], $('#zip')))
+        ||
+        (ccYes && checkElem(regExps['cvv'], $('#cvv')))
+    ){
+        hasError = true;
+    } else {
+        hasError = false;
+    }
+    
+    // If the hasError flag is true, there's an error somewhere on the page
+    if(hasError){
+        addWarning(form, '<p class="warning">Your form is missing required information or there is an error in one of the form fields.</p>');
+    } else {
+        console.log("Form submitted successfully.")
+    }
+});
