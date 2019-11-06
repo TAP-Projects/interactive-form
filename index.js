@@ -1,79 +1,81 @@
-// Some DOM reference
-const form = $('#regForm');
-const basic = $('#basicInfo');
-const jobRole = $('select#jobRole');
-const design = $('select#design');
-const color = $('select#color');
-const activities = $('fieldset#activities');
-const activitiesInputs = $('fieldset#activities :checkbox');
-const paymentMethod = $('#paymentMethod');
-const paymentInfo = $('fieldset#payment > div');
-const cc = $('div#credit-card');
-const pp = $('div#paypal');
-const bc = $('div#bitcoin');
-
 // Cost
 let totalCost = 0;
-
 // Error flag
 let hasError = false;
 
-// Create the "Other Role" input and hide it
-const elem = $('<input id="otherRole" type="text" placeholder="Your Job Role" />').hide();
-jobRole.after(elem);
+// BASIC INFO AREA ==================================================================
+
+// DOM refs
+const form = $('#regForm');
+const basic = $('#basicInfo');
+const jobRole = $('select#jobRole');
+const otherRole = $('input#otherRole');
+// Hide the other-role field
+otherRole.hide();
+// If the user selects 'other', show the 'Other' field
+jobRole.change(e=> $(e.target).val() === 'other' ? otherRole.toggle() : otherRole.hide());
+
+// T-SHIRT AREA =====================================================================
+
+// DOM refs
+const design = $('select#design');
+const colorDiv = $('#colors-js-puns');
+const colorOptions = $('select#color option');
 
 // Hide the color options until a design theme is chosen
-const colorOptions = $('select#color option')
-colorOptions.hide();
+colorDiv.hide();
 
-// Event listener and handler for job-role change
-jobRole.change(function(){
-    const otherRole = $('#otherRole');
-    if($('select#jobRole :selected').val() === 'other'){
-        otherRole.slideDown();
-    } else if(otherRole.is(':visible')){
-        otherRole.slideUp();
+// Do not show the t-shirt color options until the user selects a design, and then show only the relevant t-shirt color options, with the first options selected
+design.change(e=>{
+    // Hide the color div and color options
+    colorDiv.hide();
+    colorOptions.hide();
+    // findOptions takes a jQuery collection and a string, and returns a jQuery collection of items containing that string
+    function findOptions(elem, text){
+        return elem.filter(function (index, item) {   
+            const passes = $(this).text().indexOf(text) > 0;
+            return passes;
+        });
+    }
+    // If the user selects the 'js puns' designs, show the puns colors
+    if (design.val() === 'js puns') {
+        // Show the color section
+        colorDiv.show();
+        // Show the puns options with the first option selected
+        findOptions(colorOptions, 'Pun').show().first().prop('selected', true);
+        // Else, if the user selects the 'heart js' designs, show the heart colors
+    } else if (design.val() === 'heart js') {
+        colorDiv.show();
+        // Show the heart options with the first option selected
+        findOptions(colorOptions, 'I').show().first().prop('selected', true);
     }
 });
 
-// Event listener and handler for design change
-design.change(function(){
-    colorOptions.hide();
-    const design = $('select#design :selected');
-    if(design.val() === 'js puns'){
-        const puns = colorOptions.filter(function(index,item){
-            const passes = $(this).text().indexOf('Puns') > 0;
-            return passes;
-        });
-        puns.show()
-    } else if(design.val() === 'heart js'){
-        const hearts = colorOptions.filter(function(index,item){
-            const passes = $(this).text().indexOf('I') > 0;
-            return passes;
-        });
-        hearts.show();  
-    }
-})
+// ACTIVITIES AREA ==================================================================
 
-// Attach a change listener and handler to the activities fieldset and when an activity is checked, disable any conflicting activities. Also add the activity's cost to the total cost or remove it as appropriate.
-activities.change(function(e){
+// DOM refs
+const activities = $('fieldset#activities');
+const activitiesInputs = $('fieldset#activities :checkbox');
 
+// Prevent the user from choosing events that conflict with one another and also keep a running total of the total cost of the events selected
+activities.change(e=>{
+    
     // Grab the event's day/time and cost
     const targetInput = e.target;
     const targetTime = targetInput.dataset.dayAndTime;
-    const targetCost = parseInt(targetInput.dataset.cost.substring(1))                                  ;
-
+    const targetCost = parseInt(targetInput.dataset.cost.substring(1));
+    
     // Loop through the inputs and check for conflicting events, disabling them or re-enabling them
-    activitiesInputs.each(function(index, item){
+    activitiesInputs.each(function (index, item) {
         // Grag the current event's date/time
         let thisTime = item.dataset.dayAndTime;
-        
+
         // If there's a conflict, i.e. if our target's time is the same as this activity's time, then disable the current activity (not the target activity)
-        if(targetTime === thisTime){
+        if (targetTime === thisTime) {
             // Use toggle to ensure that unchecking will re-enable conflicting events
             $(item).parent().toggleClass('grey');
-            // For properties like 'disabled' we use prop(). Here we're basically toggling the properties value. If it's disabled, enable it. If it's enabled, disable it.
-            $(item).prop("disabled", function(index, value) { return !value; });
+            // For properties like 'disabled' we use prop(). Here we're basically toggling the properties value by using props() option callback parameter. If it's disabled, enable it. If it's enabled, disable it.
+            $(item).prop("disabled", function (index, value) { return !value; });
             //!NOTE: If this is not included, the target will also be greyed out and disabled and I have no idea why.
             $(targetInput).parent().removeClass('grey');
             $(targetInput).prop("disabled", false);
@@ -81,44 +83,51 @@ activities.change(function(e){
     });
 
     // For any item that's checked, add it's cost to the total cost
-    if($(targetInput).is(':checked')){
+    if ($(targetInput).is(':checked')) {
         totalCost += targetCost;
     // If after checking the checkbox, the checkbox is unchecked, then we want to remove the cost of this activity from the running total.
     } else {
         totalCost -= targetCost;
     }
 
+    // Show the running total cost
     $('.totalCost').text(`Total cost: \$${totalCost}`).show();
-    
+
 });
 
+// Create the running total cost element and insert it after the activities section, then hide it.
 const conCost = `<p class="totalCost">Total cost: $${totalCost}.</p>`;
 $(conCost).insertAfter(activities).hide();
 
-cc.hide();
+// PAYMENT AREA =====================================================================
+
+// DOM refs
+const paymentInfo = $('fieldset#payment > div');
+const paymentMethod = $('select#paymentMethod');
+const cc = $('div#credit-card');
+const pp = $('div#paypal');
+const bc = $('div#bitcoin');
+
+// Show the credit card info by default
+$('select#paymentMethod option[value="Credit Card"]').prop('selected',true);
+cc.show()
+// Hide other options
 pp.hide();
 bc.hide();
-paymentMethod.change(function(e){
-    // hide everything, if it's not already hidden 
-    // (slideUp is not working as advertised)
-    if(paymentInfo.not(':hidden')) paymentInfo.hide();
-    const selected = $('option:selected', this);
-    if(selected.val() === 'Credit Card'){
-        cc.toggle();
-    }
-    else if(selected.val() === 'PayPal'){
-        pp.toggle();
-    }
-    else if(selected.val() === 'Bitcoin'){
-        bc.toggle();
-    }
-})
+// These methods will hide the payment information for all but the selected payment type
+const showInfo = {
+    'Credit Card': ()=>{paymentInfo.hide(); cc.toggle()},
+    'PayPal': ()=>{paymentInfo.hide(); pp.toggle()},
+    'Bitcoin': ()=>{paymentInfo.hide(); bc.toggle()}
+}
+// When the user selects a payment method, show the corresponding payment details
+paymentMethod.change(e=>showInfo[$(e.target).val()]())
 
 // Create and insert a warning message
-function addWarning(elem, warningText){
+function addWarning(elem, warningText) {
     hasError = true;
     elem.addClass('warning');
-    if(!warningText){
+    if (!warningText) {
         const elemText = elem.attr('title') ? elem.attr('title') : elem.attr('name');
         warningText = `<p class="warning">The ${elemText} field requires a valid ${elemText}.</p>`
     }
@@ -126,25 +135,25 @@ function addWarning(elem, warningText){
 }
 
 // Remove the warning, so as to avoid duplicate warning messages
-function removeWarning(elem){
+function removeWarning(elem) {
     hasError = false;
     const warningP = '#' + elem.attr('id') + ' ~ p.warning';
-    if($(warningP)) {
+    if ($(warningP)) {
         $(warningP).remove();
     }
     elem.removeClass('warning');
 }
 
 // Add a warning message when appropriate
-function checkElem(regex, elem){
+function checkElem(regex, elem) {
     // Prevent duplicate warnings
     removeWarning(elem);
     // If the elem has no value or a non-matching value
-    if(elem.val() === '' || !elem.val().match(regex)){
+    if (elem.val() === '' || !elem.val().match(regex)) {
         // then add the warning
         addWarning(elem);
         return true;
-    } 
+    }
     return false;
 }
 
@@ -164,7 +173,7 @@ const regExps = {
 
 // Make sure a valid name and email have been entered
 basic.on('input focusout', (e) => {
-    if(e.target.type === 'text' || e.target.type === 'email'){
+    if (e.target.type === 'text' || e.target.type === 'email') {
         checkElem(regExps[e.target.id], $(e.target))
     }
 });
@@ -175,38 +184,38 @@ activities.on('focusout', (e) => {
     const acts = $(e.target).parent().parent();
     const checkedBoxes = $('fieldset#activities :checkbox:checked').length;
     removeWarning(acts);
-    if(!checkedBoxes){
+    if (!checkedBoxes) {
         addWarning(acts);
     }
-} );
+});
 
 paymentMethod.on('input focusout', (e) => {
     const target = $(e.target);
-    const selected = '#'+e.target.id+' option:selected';
+    const selected = '#' + e.target.id + ' option:selected';
     removeWarning(target);
-    if($(selected).text() === 'Select Payment Method'){
+    if ($(selected).text() === 'Select Payment Method') {
         addWarning(target);
     }
 })
 
 cc.on('input focusout', (e) => {
-    if(paymentMethod.val() === 'Credit Card'){
+    if (paymentMethod.val() === 'Credit Card') {
         checkElem(regExps[e.target.id], $(e.target));
     }
 });
 
 
 // Handle the form submit event
-form.submit(function(e){
+form.submit(function (e) {
     e.preventDefault();
 
     // Remove any previous warnings to avoid duplicate warnings
     removeWarning(form);
-    
+
     const checkedBoxes = $('fieldset#activities :checkbox:checked').length;
     const ccYes = paymentMethod.val() === 'Credit Card' ? true : false;
 
-    if(
+    if (
         // A valid name must be present
         checkElem(regExps['name'], $('#name'))
         ||
@@ -225,16 +234,28 @@ form.submit(function(e){
         (ccYes && checkElem(regExps['zip'], $('#zip')))
         ||
         (ccYes && checkElem(regExps['cvv'], $('#cvv')))
-    ){
+    ) {
         hasError = true;
     } else {
         hasError = false;
     }
-    
+
     // If the hasError flag is true, there's an error somewhere on the page
-    if(hasError){
+    if (hasError) {
         addWarning(form, '<p class="warning">Your form is missing required information or there is an error in one of the form fields.</p>');
     } else {
         console.log("Form submitted successfully.")
     }
 });
+
+
+
+
+
+
+
+
+ // const paymentType = $(e.target).val();
+    // if      (paymentType === 'Credit Card') cc.toggle();
+    // else if (paymentType === 'PayPal') pp.toggle();
+    // else if (paymentType === 'Bitcoin') bc.toggle();
