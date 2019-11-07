@@ -164,8 +164,11 @@ function checkElem(regex, elem) {
     // Prevent duplicate warnings
     removeWarning(elem);
     // If the elem has no value or a non-matching value
-    if (elem.val() === '' || !elem.val().match(regex)) {
+    if (elem.val() === '') {
         // then add the warning
+        addWarning(elem, '<p class="warning">This is a required field.</p>');
+        return false;
+    } else if (!elem.val().match(regex)) {
         addWarning(elem);
         return false;
     }
