@@ -109,6 +109,7 @@ const pp = $('div#paypal');
 const bc = $('div#bitcoin');
 
 // Show the credit card info by default
+$('select#paymentMethod option:contains("Select")').hide();
 $('select#paymentMethod option[value="Credit Card"]').prop('selected',true);
 cc.show()
 // Hide other options
@@ -123,24 +124,38 @@ const showInfo = {
 // When the user selects a payment method, show the corresponding payment details
 paymentMethod.change(e=>showInfo[$(e.target).val()]())
 
+// VALIDATION AREA ==================================================================
+
 // Create and insert a warning message
-function addWarning(elem, warningText) {
+function addWarning(elem, warningText, method) {
+    // Set the error flag
     hasError = true;
+    // Add a warning style to the element itself
     elem.addClass('warning');
+    // If no warning text is supplied, construct some
     if (!warningText) {
         const elemText = elem.attr('title') ? elem.attr('title') : elem.attr('name');
-        warningText = `<p class="warning">The ${elemText} field requires a valid ${elemText}.</p>`
+        const elemSpecific = elem.attr('data-warning') ? elem.attr('data-warning') : '';
+        warningText = `<p class="warning">The ${elemText} field requires a valid ${elemText}.  ${elemSpecific}</p>`
     }
-    $(warningText).insertAfter(elem);
+    if(!method) {
+        method = 'insertAfter';
+    }
+    // Insert the warning text after the offending element
+    $(warningText)[method](elem);
 }
 
 // Remove the warning, so as to avoid duplicate warning messages
 function removeWarning(elem) {
+    // Set the error flag
     hasError = false;
+    // Construct the warning selector
     const warningP = '#' + elem.attr('id') + ' ~ p.warning';
+    // If there are any warnings after the elem, remove them
     if ($(warningP)) {
         $(warningP).remove();
     }
+    // Remove the warning class from the elem itself
     elem.removeClass('warning');
 }
 
@@ -152,9 +167,19 @@ function checkElem(regex, elem) {
     if (elem.val() === '' || !elem.val().match(regex)) {
         // then add the warning
         addWarning(elem);
-        return true;
+        return false;
     }
-    return false;
+    return true;
+}
+
+const activityWarning = '<p class="warning">Please selected at least one activity.</p>'
+function checkCheckboxes(elem) {
+    //!NOTE: Using update ref to get checked boxes
+    const isChecked = $('#activities :checkbox:checked').length > 0;
+    removeWarning(elem);
+    if (!isChecked) {
+        addWarning(elem, activityWarning);
+    }
 }
 
 // Regular expressions for input validation event handler
@@ -180,23 +205,8 @@ basic.on('input focusout', (e) => {
 
 // Make sure that at least one of the conference events has been chosen
 activities.on('focusout', (e) => {
-    // This is sort of redundant given that I already have 'activities', but I wanted to make everything as 'pure' as possible
-    const acts = $(e.target).parent().parent();
-    const checkedBoxes = $('fieldset#activities :checkbox:checked').length;
-    removeWarning(acts);
-    if (!checkedBoxes) {
-        addWarning(acts);
-    }
+    checkCheckboxes(activities);
 });
-
-paymentMethod.on('input focusout', (e) => {
-    const target = $(e.target);
-    const selected = '#' + e.target.id + ' option:selected';
-    removeWarning(target);
-    if ($(selected).text() === 'Select Payment Method') {
-        addWarning(target);
-    }
-})
 
 cc.on('input focusout', (e) => {
     if (paymentMethod.val() === 'Credit Card') {
@@ -204,58 +214,40 @@ cc.on('input focusout', (e) => {
     }
 });
 
+const submitWarning = '<p class="warning" style="margin:1em">Your form is missing required information or there is an error in one of the form fields.</p>'
 
-// Handle the form submit event
+// Check for validity again when the form is submitted.
 form.submit(function (e) {
-    e.preventDefault();
 
     // Remove any previous warnings to avoid duplicate warnings
     removeWarning(form);
 
-    const checkedBoxes = $('fieldset#activities :checkbox:checked').length;
+    // All required fields are present
+    const hasName = checkElem(regExps['name'], $('#name'));
+    const hasEmail = checkElem(regExps['email'], $('#email'));
+    const hasActivity = checkCheckboxes(activities);
     const ccYes = paymentMethod.val() === 'Credit Card' ? true : false;
-
-    if (
-        // A valid name must be present
-        checkElem(regExps['name'], $('#name'))
-        ||
-        // A valid email must be present
-        checkElem(regExps['email'], $('#email'))
-        ||
-        // A conference activity must be selected
-        !checkedBoxes
-        ||
-        // A payment method must be selected
-        ($('#paymentMethod option:selected').text() === 'Select Payment Method')
-        ||
-        // If the payment method is credit card, valid credit card details must be present
-        (ccYes && checkElem(regExps['num'], $('#num')))
-        ||
-        (ccYes && checkElem(regExps['zip'], $('#zip')))
-        ||
-        (ccYes && checkElem(regExps['cvv'], $('#cvv')))
-    ) {
-        hasError = true;
+    const hasCc = checkElem(regExps['num'], $('#num'));
+    const hasZip = checkElem(regExps['zip'], $('#zip'));
+    const hasCvv = checkElem(regExps['cvv'], $('#cvv'));
+    if (hasName && hasEmail && hasActivity) {
+        // If the payment method is credit card, valid credit card details are present
+        if (ccYes) {
+            if (hasCc && hasZip && hasCvv) {
+                hasError = false;
+            }
+        }
     } else {
-        hasError = false;
+        hasError = true;
     }
 
     // If the hasError flag is true, there's an error somewhere on the page
     if (hasError) {
-        addWarning(form, '<p class="warning">Your form is missing required information or there is an error in one of the form fields.</p>');
+        e.preventDefault();  
+        addWarning(form, submitWarning, 'appendTo');
+        // In this case, adding warning styling to the form element would cause all legends to show the warning style. We prevent that here.
+        form.removeClass('warning');
     } else {
         console.log("Form submitted successfully.")
     }
 });
-
-
-
-
-
-
-
-
- // const paymentType = $(e.target).val();
-    // if      (paymentType === 'Credit Card') cc.toggle();
-    // else if (paymentType === 'PayPal') pp.toggle();
-    // else if (paymentType === 'Bitcoin') bc.toggle();
