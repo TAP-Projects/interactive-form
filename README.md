@@ -10,7 +10,7 @@ This projects demonstrates several form interacitvity and validation techniques 
 
 The form is deployed here:
 
-https://julianjohannesen.github.io/interactive-form/
+https://tap-projects.github.io/interactive-form/
 
 Please feel free to try out various combinations of form entries.
 
